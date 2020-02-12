@@ -49,8 +49,8 @@ Le fichier CSV de sortie comprend de nombreuses colonnes dont voici le descripti
 * ``windGustMaxdt10min``, --> l'heure exacte (UTC) de la rafale de vent max sur les dix dernières minutes selectionnée dans le paramètre précédent
 * ``windSpeedAvg10min``, --> la moyenne du vent moyen des dix dernières minutes
 * ``windDirAvg10min``, --> la direction de la moyenne du vent moyen des dix dernières minutes
-* ``rainCumulMonth``, --> le cumul de pluie sur le mois en cours (depuis minuit UTC du 1er du mois jusqu'à l'enregistrement en cours INCLUS (``dateTime``))
-* ``rainCumulYear`` --> le cumul de pluie sur l'année en cours (depuis minuit UTC du 1er janvier jusqu'à l'enregistrement en cours INCLUS(``dateTime``))
+* ``rainCumulMonth``, --> le cumul de pluie sur le mois en cours (depuis minuit UTC du 1er du mois (non inclus) jusqu'à l'enregistrement en cours INCLUS (``dateTime``))
+* ``rainCumulYear`` --> le cumul de pluie sur l'année en cours (depuis minuit UTC du 1er janvier (non inclus) jusqu'à l'enregistrement en cours INCLUS(``dateTime``))
 
 
 ## Installation
