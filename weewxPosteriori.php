@@ -16,7 +16,7 @@
 // Date UTC
 	date_default_timezone_set('UTC');
 
-//
+// Définition du nom de la table en fonction du type de BDD utilisé
 	if ($db_type === "sqlite") {
 		$db_table = $db_table_sqlite;
 	} elseif ($db_type === "mysql") {
