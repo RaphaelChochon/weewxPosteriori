@@ -25,6 +25,31 @@ La fonction utilisée pour la moyenne d'angles est inspirée de : https://gist.g
 * Un accès en ligne de commande à votre Raspberry Pi. Si vous avez installé WeeWX ce ne devrait pas être un souci
 * Un accès FTP sur Infoclimat (en faire la demande explicite lors de la demande d'intégration au réseau StatIC - les identifiants vous sont ensuite fournis par l'équipe)
 
+## Structure du fichier CSV généré
+Le fichier CSV de sortie comprend de nombreuses colonnes dont voici le descriptif, dans l'ordre :
+* ``dateTime``, --> date et heure UTC de l'enregistrement
+* ``TempNow``, --> la température qu'il faisait à dateTime
+* ``HrNow``, --> idem pour l’humidité
+* ``TdNow``, --> idem pour le point de rosée
+* ``barometerNow``, --> idem pour la pression atmosphérique (``barometer``)
+* ``rainRateNow``, --> idem pour l'intensité de précipitations
+* ``radiationNow``, --> idem pour le rayonnement solaire
+* ``UvNow``, --> idem pour l'indice UV
+* ``Tn``, --> la température minimal sur l'intervalle en cours
+* ``Tx``, --> la température maximal sur l'intervalle en cours
+* ``rainCumul``, --> le cumul de pluie sur l'intervalle en cours
+* ``rainRateMax``, --> l'intensité de précipitations max sur l'intervalle en cours
+* ``radiationMax``, --> le rayonnement max sur l'intervalle en cours
+* ``UvMax``, --> l'UV max sur l'intervalle en cours
+* ``windGustMax1h``, --> la rafale de vent max sur une heure (si intervalle de une heure, c'est sur l'heure glissante, si intervalle de 10 minutes, c'est aussi sur l'heure glissante) (cf norme OMM)
+* ``windGustMaxDir1h``, --> la direction de la rafale de vent max selectionnée dans le paramètre précédent
+* ``windGustMaxdt1h``, --> l'heure exacte (UTC) de la rafale de vent max selectionnée dans le paramètre précédent
+* ``windGustMax10min``, --> la rafale de vent max sur les dix dernières minutes (peu importe la configuration de l'intervalle) (cf norme OMM)
+* ``windGustMaxDir10min``, --> la direction de la rafale de vent max sur les dix dernières minutes, selectionnée dans le paramètre précédent
+* ``windGustMaxdt10min``, --> l'heure exacte (UTC) de la rafale de vent max sur les dix dernières minutes selectionnée dans le paramètre précédent
+* ``windSpeedAvg10min``, --> la moyenne du vent moyen des dix dernières minutes
+* ``windDirAvg10min`` --> la direction de la moyenne du vent moyen des dix dernières minutes
+
 
 ## Installation
 ### Installation de git et php
