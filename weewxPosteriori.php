@@ -125,7 +125,7 @@
 
 // CSV FILE PUSH HEADER
 	$prepareCSV = array();
-	$prepareCSV[] = array ('dateTime', 'TempNow', 'HrNow', 'TdNow', 'barometerNow', 'rainRateNow', 'radiationNow', 'UvNow', 'Tn', 'Tx', 'rainCumul', 'rainRateMax', 'radiationMax', 'UvMax', 'windGustMax1h', 'windGustMaxDir1h', 'windGustMaxdt1h', 'windGustMax10min', 'windGustMaxDir10min', 'windGustMaxdt10min', 'windSpeedAvg10min', 'windDirAvg10min');
+	$prepareCSV[] = array ('dateTime', 'TempNow', 'HrNow', 'TdNow', 'barometerNow', 'rainRateNow', 'radiationNow', 'UvNow', 'Tn', 'Tx', 'rainCumul', 'rainRateMax', 'radiationMax', 'UvMax', 'windGustMax1h', 'windGustMaxDir1h', 'windGustMaxdt1h', 'windGustMax10min', 'windGustMaxDir10min', 'windGustMaxdt10min', 'windSpeedAvg10min', 'windDirAvg10min', 'rainCumulMonth', 'rainCumulYear');
 
 // Établissement des timestamp stop et start
 	$query_string = "SELECT `dateTime` FROM $db_table ORDER BY `dateTime` DESC LIMIT 1;";
@@ -177,7 +177,7 @@
 
 	// Boucle sur chaque dates à générer
 	foreach ($dtGenerations as $dtGeneration) {
-		// CONVERT date en timestamp
+		// CONVERT date en timestamp | Stop = fin && Start = début
 		$dtStopActu  = $dtGeneration;
 		$tsStopActu  = strtotime($dtStopActu);
 		$tsStartActu = $tsStopActu-($intervalRecup*60);
@@ -317,7 +317,7 @@
 			}
 		}
 
-		// Calcul RAIN cumul
+		// Calcul RAIN cumul intervalle en cours
 		$query_string = "SELECT SUM(`rain`) AS `rainCumul` FROM $db_table WHERE `dateTime` > '$tsStartActu' AND `dateTime` <= '$tsStopActu';";
 		$result       = $db_handle->query($query_string);
 		if (!$result && $debug) {
@@ -564,6 +564,82 @@
 			}
 		}
 
+		// Calcul RAIN cumul month
+		// Premier jour de ce mois
+		$dtStartMonth = date('Y-m-01 00:00:00', strtotime($dtStartActu)); // $dtStartActu = le ts de début de l'interval en cours
+		// $tsStartMonth  = strtotime($dtStartMonth)-1; // -1 seconde pour inclure dans la requete ci dessous l'enregistrement de l'heure pile
+		$tsStartMonth  = strtotime($dtStartMonth);
+
+		$query_string = "SELECT SUM(`rain`) AS `rainCumulMonth` FROM $db_table WHERE `dateTime` > '$tsStartMonth' AND `dateTime` <= '$tsStopActu';";
+		$result       = $db_handle->query($query_string);
+		if (!$result && $debug) {
+			// Erreur et debug activé
+			echo "Erreur dans la requete ".$query_string.PHP_EOL;
+			if ($db_type === "sqlite") {
+				echo $db_handle->lastErrorMsg().PHP_EOL.PHP_EOL;
+			} elseif ($db_type === "mysql") {
+				printf("Message d'erreur : %s\n", $db_handle->error).PHP_EOL.PHP_EOL;
+			}
+		}
+		if ($result) {
+			if ($debug) {
+				echo '1er du mois : '.$dtStartMonth.PHP_EOL;
+			}
+			if ($db_type === "sqlite") {
+				$row = $result->fetchArray(SQLITE3_ASSOC);
+			} elseif ($db_type === "mysql") {
+				$row = mysqli_fetch_assoc($result);
+			}
+			$rainCumulMonth = null;
+			if (!is_null ($row['rainCumulMonth'])) {
+				if ($unit == '1') {
+					$rainCumulMonth = round($row['rainCumulMonth']*25.4,1);
+				}elseif ($unit == '16') {
+					$rainCumulMonth = round($row['rainCumulMonth']*10,1);
+				}elseif ($unit == '17') {
+					$rainCumulMonth = round($row['rainCumulMonth'],1);
+				}
+			}
+		}
+
+		// Calcul RAIN cumul year
+		// Premier jour de cette année
+		$dtStartYear = date('Y-01-01 00:00:00', strtotime($dtStartActu));
+		// $tsStartYear  = strtotime($dtStartYear)-1; // -1 seconde pour inclure dans la requete ci dessous l'enregistrement de l'heure pile
+		$tsStartYear  = strtotime($dtStartYear);
+
+		$query_string = "SELECT SUM(`rain`) AS `rainCumulYear` FROM $db_table WHERE `dateTime` > '$tsStartYear' AND `dateTime` <= '$tsStopActu';";
+		$result       = $db_handle->query($query_string);
+		if (!$result && $debug) {
+			// Erreur et debug activé
+			echo "Erreur dans la requete ".$query_string.PHP_EOL;
+			if ($db_type === "sqlite") {
+				echo $db_handle->lastErrorMsg().PHP_EOL.PHP_EOL;
+			} elseif ($db_type === "mysql") {
+				printf("Message d'erreur : %s\n", $db_handle->error).PHP_EOL.PHP_EOL;
+			}
+		}
+		if ($result) {
+			if ($debug) {
+				echo '1er de l\'année : '.$dtStartYear.PHP_EOL;
+			}
+			if ($db_type === "sqlite") {
+				$row = $result->fetchArray(SQLITE3_ASSOC);
+			} elseif ($db_type === "mysql") {
+				$row = mysqli_fetch_assoc($result);
+			}
+			$rainCumulYear = null;
+			if (!is_null ($row['rainCumulYear'])) {
+				if ($unit == '1') {
+					$rainCumulYear = round($row['rainCumulYear']*25.4,1);
+				}elseif ($unit == '16') {
+					$rainCumulYear = round($row['rainCumulYear']*10,1);
+				}elseif ($unit == '17') {
+					$rainCumulYear = round($row['rainCumulYear'],1);
+				}
+			}
+		}
+
 
 		if ($debug) {
 			echo "Unite BDD  | ".$unit." | (1 = US ; 16 = METRIC ; 17 = METRICWX)".PHP_EOL;
@@ -571,6 +647,8 @@
 			echo "CLIMATO		| Tn : ".$Tn."°C".PHP_EOL;
 			echo "		| Tx : ".$Tx."°C".PHP_EOL;
 			echo "		| rainCumul : ".$rainCumul." mm".PHP_EOL;
+			echo "		| rainCumulMonth : ".$rainCumulMonth." mm".PHP_EOL;
+			echo "		| rainCumulYear : ".$rainCumulYear." mm".PHP_EOL;
 			echo "		| rainRateMax : ".$rainRateMax." mm".PHP_EOL;
 			echo "		| radiationMax : ".$radiationMax.PHP_EOL;
 			echo "		| UvMax : ".$UvMax.PHP_EOL;
@@ -589,7 +667,7 @@
 		}
 
 		// Insert dans le tableau des valeurs
-		$prepareCSV[] = array ($dtStopActu, $tempNow, $HrNow, $TdNow, $barometerNow, $rainRateNow, $radiationNow, $UvNow, $Tn, $Tx, $rainCumul, $rainRateMax, $radiationMax, $UvMax, $windGustMax1h, $windGustMaxDir1h, $windGustMaxdt1h, $windGustMax10min, $windGustMaxDir10min, $windGustMaxdt10min, $windSpeedAvg10min, $windDirAvg10min);
+		$prepareCSV[] = array ($dtStopActu, $tempNow, $HrNow, $TdNow, $barometerNow, $rainRateNow, $radiationNow, $UvNow, $Tn, $Tx, $rainCumul, $rainRateMax, $radiationMax, $UvMax, $windGustMax1h, $windGustMaxDir1h, $windGustMaxdt1h, $windGustMax10min, $windGustMaxDir10min, $windGustMaxdt10min, $windSpeedAvg10min, $windDirAvg10min, $rainCumulMonth, $rainCumulYear);
 	}
 
 	// Insert dans le fichier CSV
