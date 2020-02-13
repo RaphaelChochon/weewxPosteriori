@@ -5,6 +5,12 @@
  * MySQL, avec détection auto des unités et conversion
 */
 
+/*
+ * En CLI :
+ * php /home/pi/weewxPosteriori/weewxPosteriori.php --station-bdd=station --station-id=id
+ * 
+*/
+
 // CONFIG
 	require_once "config.php";
 
@@ -15,6 +21,15 @@
 
 // Date UTC
 	date_default_timezone_set('UTC');
+
+// CONF STATION
+	$paramsCli = getopt(null, array(
+		'station-bdd:',
+		'station-id:',
+	));
+	//var_dump($options);
+	$db_name_mysql = $paramsCli['station-bdd'];
+	$id_station = $paramsCli['station-id'];
 
 // Définition du nom de la table en fonction du type de BDD utilisé
 	if ($db_type === "sqlite") {
