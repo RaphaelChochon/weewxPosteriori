@@ -1,3 +1,6 @@
+# ARCHIVÉ
+Le script se trouve maintenant ici : https://github.com/AssociationInfoclimat/weewxPosteriori
+
 
 weewxPosteriori
 ===============
